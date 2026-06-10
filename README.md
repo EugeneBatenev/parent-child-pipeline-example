@@ -6,12 +6,12 @@
 
 ```mermaid
 flowchart TD
-    A["Manual workflow_dispatch: initial launch"] --> B["prepare-allure-context"]
+    A["Triggering parentCaller.yml"] --> B["prepare-allure-context"]
     B --> C["Get GitHub workflow metadata"]
     C --> D["Download allurectl"]
     D --> E["Gathering pipeline context and pack it in encoded ALLURE_CI_ENV"]
     E --> F["Upload artifact with packed parent pipline context: allure-ci-env"]
-    F --> G["childWithTestExec"]
+    F --> G["Triggering childWithTestExec.yml"]
     G --> H["Call reusable child workflow"]
     H --> I["Checkout repository"]
     I --> J["Download artifact: allure-ci-env"]
