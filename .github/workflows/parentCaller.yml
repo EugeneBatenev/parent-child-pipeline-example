@@ -3,12 +3,14 @@ name: initial launch
 on:
   workflow_dispatch:
     inputs:
+    # mandatory parameters used by TestOps. More details here: https://docs.qameta.io/allure-testops/integrations/github/#declare-inputs-in-the-github-workflow
       ALLURE_JOB_RUN_ID:
         description: "ALLURE_JOB_RUN_ID service parameter. Leave blank."
         required: false
       ALLURE_USERNAME:
         description: "ALLURE_USERNAME service parameter. Leave blank"
         required: false
+    # custom inputs. Should be configured as described here https://docs.qameta.io/allure-testops/integrations/github/#configure-job-to-pass-parameters-to-github-workflow    
       DUMMY_INPUT:
         description: "DUMMY_INPUT should not be added to Job configuration at TestOps since it has a required: false parameter."
         default: 'lmao'
@@ -40,6 +42,8 @@ jobs:
       ALLURE_JOB_RUN_ID: ${{ github.event.inputs.ALLURE_JOB_RUN_ID }}
       ALLURE_USERNAME: ${{ github.event.inputs.ALLURE_USERNAME }}
 
+# Build a Valid Reference to the Parent Workflow
+# This step is mandatory and is described in detail in the documentation: https://docs.qameta.io/allure-testops/integrations/github/#github-enterprise-suitable-example-script--download
     steps:
       - uses: actions/github-script@v4
         id: allure-job-uid
@@ -57,6 +61,9 @@ jobs:
         run: |
           wget https://github.com/allure-framework/allurectl/releases/latest/download/allurectl_linux_amd64 -O ./allurectl
           chmod +x ./allurectl
+
+# At this step, we collect all the required pipeline context.
+# this is step is needed to pass the full context of the initiating run to the downstream pipeline, so that Allure TestOps can generate the correct link.
 
       - name: Pack Allure pipeline context
         id: allure-context
