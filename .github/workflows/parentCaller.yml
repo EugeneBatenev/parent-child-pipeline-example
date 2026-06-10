@@ -1,0 +1,71 @@
+name: initial launch
+
+on:
+  workflow_dispatch:
+    inputs:
+      ALLURE_JOB_RUN_ID:
+        description: "ALLURE_JOB_RUN_ID service parameter. Leave blank."
+        required: false
+      ALLURE_USERNAME:
+        description: "ALLURE_USERNAME service parameter. Leave blank"
+        required: false
+
+run-name: "${{ github.workflow }}-${{ github.run_number }}"
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  prepare-allure-context:
+    name: prepare Allure pipeline context
+    runs-on: ubuntu-latest
+    env:
+      ALLURE_ENDPOINT: https://testing.testops.cloud/
+      ALLURE_PROJECT_ID: "11844"
+      ALLURE_TOKEN: ${{ secrets.ALLURE_TOKEN }}
+      ALLURE_RESULTS: allure-results
+      ALLURE_LAUNCH_NAME: Python reference launch
+      ALLURE_JOB_RUN_ID: ${{ github.event.inputs.ALLURE_JOB_RUN_ID }}
+      ALLURE_USERNAME: ${{ github.event.inputs.ALLURE_USERNAME }}
+
+    steps:
+      - uses: actions/github-script@v4
+        id: allure-job-uid
+        with:
+          result-encoding: string
+          script: |
+            const result = await github.actions.getWorkflowRun({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: context.runId,
+            });
+            return `${context.repo.owner}/${context.repo.repo}/actions/workflows/${result.data.workflow_id}`
+
+      - name: Download and make allurectl executable
+        run: |
+          wget https://github.com/allure-framework/allurectl/releases/latest/download/allurectl_linux_amd64 -O ./allurectl
+          chmod +x ./allurectl
+
+      - name: Pack Allure pipeline context
+        id: allure-context
+        env:
+          ALLURE_JOB_UID: ${{ steps.allure-job-uid.outputs.result }}
+        run: |
+          mkdir -p .allure-context
+          ./allurectl ci env --encode > .allure-context/ALLURE_CI_ENV
+          ./allurectl ci env --encode | base64 -d
+
+      - name: Upload Allure pipeline context
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-ci-env
+          path: .allure-context/ALLURE_CI_ENV
+          retention-days: 1
+
+  execute-functional-test:
+    name: execute functional test
+    needs: prepare-allure-context
+    uses: ./.github/workflows/childWithTestExec.yml
+    secrets:
+      ALLURE_TOKEN: ${{ secrets.ALLURE_TOKEN }}
