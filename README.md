@@ -1,5 +1,5 @@
 
-# Small parameterized test using pytest, which generates result files 
+# Small parameterized test using pytest running in a , which generates result files 
 
 ## Project Purpose
 
@@ -24,3 +24,22 @@ Additionally, ensure that the virtual environment (.venv) is correctly configure
 python -m pytest --alluredir allure-results --clean-alluredir
 ```
 
+### Pipeline execution process 
+
+```mermaid
+flowchart TD
+    A["Manual workflow_dispatch: initial launch"] --> B["prepare-allure-context"]
+    B --> C["Get GitHub workflow metadata"]
+    C --> D["Download allurectl"]
+    D --> E["Gathering pipeline context and pack it in encoded ALLURE_CI_ENV"]
+    E --> F["Upload artifact with packed parent pipline context: allure-ci-env"]
+    F --> G["childWithTestExec"]
+    G --> H["Call reusable child workflow"]
+    H --> I["Checkout repository"]
+    I --> J["Download artifact: allure-ci-env"]
+    J --> K["Run Docker container: python:3.12"]
+    K --> L["Install pytest and allure-pytest"]
+    L --> M["Run allurectl watch -- pytest"]
+    M --> N["Send results to Allure TestOps"]
+    M --> O["Upload allure-results artifact"]
+```
