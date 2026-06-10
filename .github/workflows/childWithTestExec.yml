@@ -28,6 +28,9 @@ jobs:
 
 # before docker run, we perform printenv | grep ALLURE_  just to make sure that we received context from parentCaller.yml
 # then we perform again printenv | grep ALLURE_ in a docker container to make sure that context is also passed
+# selective tests run won't work if filtering parameters are added to the test execution command via CLI, these have highest priority and will break allure selective test run
+# so please keep it simple
+
       - name: Run pytest in Docker container and upload to Allure TestOps
         run: |
           export ALLURE_CI_ENV="$(cat .allure-context/ALLURE_CI_ENV)"
