@@ -9,6 +9,18 @@ on:
       ALLURE_USERNAME:
         description: "ALLURE_USERNAME service parameter. Leave blank"
         required: false
+      DUMMY_INPUT:
+        description: "DUMMY_INPUT should not be added to Job configuration at TestOps since it has a required: false parameter."
+        default: ''
+        required: false
+      SECOND_DUMMY_INPUT:
+        description: "SECOND_DUMMY_INPUT should be added to Job configuration at TestOps since it has a required: true parameter."
+        required: true
+        default: 'LOL'
+        type: choice
+        options:
+        - LOL
+        - KEK
 
 run-name: "${{ github.workflow }}-${{ github.run_number }}"
 
