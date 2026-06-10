@@ -16,7 +16,6 @@ on:
       SECOND_DUMMY_INPUT:
         description: "SECOND_DUMMY_INPUT should be added to Job configuration at TestOps since it has a required: true parameter."
         required: true
-        default: 'LOL'
         type: choice
         options:
         - LOL
