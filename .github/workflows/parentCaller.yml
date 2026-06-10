@@ -11,7 +11,7 @@ on:
         required: false
       DUMMY_INPUT:
         description: "DUMMY_INPUT should not be added to Job configuration at TestOps since it has a required: false parameter."
-        default: ''
+        default: 'lmao'
         required: false
       SECOND_DUMMY_INPUT:
         description: "SECOND_DUMMY_INPUT should be added to Job configuration at TestOps since it has a required: true parameter."
